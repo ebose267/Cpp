@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>C++ Complete Course — Alix Learn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS
+============================================================ */
+:root{
+  --gold:#d4af37;--gold-dim:#a88a20;--gold-glow:rgba(212,175,55,.10);--gold-glow2:rgba(212,175,55,.18);
+  --code-bg:#0f0f0f;--code-border:#1e1e1e;
+  --kw:#d4af37;--fn:#7ec8e3;--st:#98d982;--cm:#484848;--nm:#c9a0dc;--op:#ff8c94;--ty:#ffb347;
+  --r-sm:4px;--r-md:8px;--r-lg:14px;
+  --mono:'Space Mono',monospace;--display:'Syne',sans-serif;--body:'DM Sans',sans-serif;
+  --sidebar-w:280px;--topbar-h:60px;--trans:.22s ease;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+  --safe-left:env(safe-area-inset-left,0px);
+  --safe-right:env(safe-area-inset-right,0px);
+}
+[data-theme="dark"]{
+  --bg:#0a0a0a;--bg2:#111;--bg3:#161616;--bg4:#1c1c1c;--surface:#131313;
+  --border:rgba(212,175,55,.12);--border2:rgba(212,175,55,.28);
+  --text:#fafafa;--text2:#c9c9c9;--text3:#666;
+  --topbar-bg:rgba(10,10,10,.94);--sidebar-bg:#0e0e0e;
+  --hero-grid:rgba(212,175,55,.030);--card-bg:#111;--tag-bg:rgba(212,175,55,.08);
+}
+[data-theme="light"]{
+  --bg:#f5f4f0;--bg2:#eeece8;--bg3:#e8e6e1;--bg4:#dddbd6;--surface:#fafaf7;
+  --border:rgba(0,0,0,.10);--border2:rgba(212,175,55,.50);
+  --text:#0a0a0a;--text2:#444;--text3:#888;
+  --topbar-bg:rgba(245,244,240,.94);--sidebar-bg:#eeece8;
+  --hero-grid:rgba(212,175,55,.06);--card-bg:#fafaf7;--tag-bg:rgba(212,175,55,.12);
+}
+
+/* ============================================================
+   RESET
+============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;font-size:16px;-webkit-text-size-adjust:100%;}
+body{background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.7;overflow-x:hidden;transition:background var(--trans),color var(--trans);}
+a{color:inherit;text-decoration:none;}
+button{cursor:pointer;font-family:inherit;border:none;background:none;-webkit-tap-highlight-color:transparent;}
+img{max-width:100%;display:block;}
+
+/* ============================================================
+   TOPBAR
+============================================================ */
+.topbar{
+  position:fixed;top:0;left:0;right:0;height:var(--topbar-h);
+  background:var(--topbar-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);z-index:300;
+  display:flex;align-items:center;padding:0 1rem;gap:10px;
+}
+.sidebar-toggle{
+  width:40px;height:40px;min-width:40px;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text3);font-size:16px;
+  transition:all var(--trans);flex-shrink:0;
+}
+.sidebar-toggle:hover,.sidebar-toggle:active{border-color:var(--gold);color:var(--gold);}
+.topbar-logo{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.topbar-logo img{height:24px;}
+.topbar-logo-text{font-family:var(--display);font-weight:700;font-size:13px;color:var(--gold);letter-spacing:.06em;}
+.topbar-sep{width:1px;height:18px;background:var(--border);flex-shrink:0;}
+.topbar-course-title{font-family:var(--mono);font-size:10px;color:var(--text3);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.topbar-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.topbar-link{font-family:var(--mono);font-size:11px;color:var(--text3);transition:color var(--trans);white-space:nowrap;}
+.topbar-link:hover{color:var(--gold);}
+.theme-toggle{display:flex;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:3px;gap:2px;}
+.theme-btn{width:28px;height:24px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:12px;transition:background var(--trans);color:var(--text3);}
+.theme-btn.active{background:var(--gold);color:#0a0a0a;}
+
+/* Animated progress bar */
+.topbar-progress{
+  position:absolute;bottom:0;left:0;height:2px;background:var(--gold);
+  transition:width .6s cubic-bezier(.25,.46,.45,.94);width:0%;
+  box-shadow:0 0 8px rgba(212,175,55,.4);
+}
+
+/* ============================================================
+   LAYOUT
+============================================================ */
+.app-layout{display:flex;padding-top:var(--topbar-h);min-height:100vh;}
+
+/* ============================================================
+   SIDEBAR
+============================================================ */
+.sidebar{
+  width:var(--sidebar-w);background:var(--sidebar-bg);border-right:1px solid var(--border);
+  position:fixed;top:var(--topbar-h);left:0;bottom:0;overflow-y:auto;z-index:200;
+  transition:transform var(--trans);
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+  padding-bottom:var(--safe-bottom);
+}
+.sidebar::-webkit-scrollbar{width:3px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.sidebar.mobile-hidden{transform:translateX(-100%);}
+
+/* Sidebar overlay */
+.sidebar-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:199;
+  opacity:0;pointer-events:none;transition:opacity var(--trans);
+  top:var(--topbar-h);
+}
+.sidebar-overlay.active{opacity:1;pointer-events:all;}
+
+.sidebar-header{padding:1rem 1rem .75rem;border-bottom:1px solid var(--border);}
+.sidebar-course-tag{font-family:var(--mono);font-size:9px;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;margin-bottom:4px;}
+.sidebar-course-name{font-family:var(--display);font-size:13px;font-weight:700;color:var(--text);line-height:1.3;}
+
+/* Animated sidebar progress */
+.sidebar-progress-info{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:6px;transition:color var(--trans);}
+.sidebar-progress-bar{height:3px;background:var(--border);border-radius:2px;margin-top:8px;overflow:hidden;}
+.sidebar-progress-fill{
+  height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:2px;
+  transition:width .6s cubic-bezier(.25,.46,.45,.94);width:0%;
+  position:relative;overflow:hidden;
+}
+.sidebar-progress-fill::after{
+  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);
+  animation:shimmer 2s infinite;
+}
+@keyframes shimmer{0%{left:-100%;}100%{left:200%;}}
+
+/* Phase groups in sidebar */
+.sidebar-phase{border-bottom:1px solid var(--border);}
+.sidebar-phase-header{
+  display:flex;align-items:center;gap:8px;padding:.6rem 1rem;
+  cursor:pointer;user-select:none;transition:background var(--trans);
+}
+.sidebar-phase-header:hover{background:var(--gold-glow);}
+.phase-badge{
+  font-family:var(--mono);font-size:9px;color:#0a0a0a;background:var(--gold);
+  padding:1px 5px;border-radius:2px;flex-shrink:0;min-width:22px;text-align:center;
+}
+.phase-badge.locked{background:var(--border);color:var(--text3);}
+.sidebar-phase-name{font-size:11px;font-weight:500;color:var(--text2);flex:1;line-height:1.3;}
+.sidebar-phase-chevron{font-size:9px;color:var(--text3);transition:transform .2s;flex-shrink:0;}
+.sidebar-phase-header.open .sidebar-phase-chevron{transform:rotate(90deg);}
+
+.sidebar-module{display:none;}
+.sidebar-module.open{display:block;}
+.sidebar-module-label{
+  padding:.4rem 1rem .2rem 2rem;font-family:var(--mono);font-size:9px;
+  color:var(--gold);letter-spacing:.1em;text-transform:uppercase;
+}
+
+.sidebar-lesson{
+  display:flex;align-items:flex-start;gap:8px;padding:.4rem 1rem .4rem 2rem;
+  cursor:pointer;font-size:11px;color:var(--text3);line-height:1.4;transition:all var(--trans);
+  min-height:36px;
+}
+.sidebar-lesson:hover{background:var(--gold-glow);color:var(--text2);}
+.sidebar-lesson.active{color:var(--gold);background:var(--gold-glow2);}
+.sidebar-lesson.done{color:var(--text2);}
+.lesson-check{
+  width:14px;height:14px;min-width:14px;border:1px solid var(--border);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:7px;
+  margin-top:1px;transition:all var(--trans);
+}
+.sidebar-lesson.done .lesson-check{background:var(--gold);border-color:var(--gold);color:#0a0a0a;}
+
+/* ============================================================
+   MAIN CONTENT
+============================================================ */
+.main-content{margin-left:var(--sidebar-w);flex:1;min-width:0;}
+
+/* ============================================================
+   VIEWS
+============================================================ */
+.home-view{display:block;}
+.lesson-view{display:none;}
+.careers-view{display:none;}
+
+/* ============================================================
+   HERO
+============================================================ */
+.hero{
+  position:relative;min-height:90vh;display:flex;flex-direction:column;
+  justify-content:center;padding:5rem 4rem 4rem;overflow:hidden;
+}
+.hero-grid{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(var(--hero-grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--hero-grid) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);
+  font-size:10px;color:var(--gold);letter-spacing:.15em;text-transform:uppercase;
+  margin-bottom:1.25rem;position:relative;
+}
+.hero-eyebrow::before{content:'';width:20px;height:1px;background:var(--gold);}
+.hero-headline{
+  font-family:var(--display);font-size:clamp(2.2rem,5.5vw,4.5rem);font-weight:800;
+  line-height:1.05;color:var(--text);margin-bottom:1.25rem;max-width:680px;position:relative;
+}
+.hero-headline .accent{color:var(--gold);}
+.hero-headline .line2{display:block;color:var(--text2);font-weight:600;}
+.hero-sub{font-size:1rem;color:var(--text2);max-width:500px;line-height:1.75;margin-bottom:2rem;position:relative;}
+.hero-identity{
+  background:var(--gold-glow);border:1px solid var(--border2);
+  padding:.75rem 1.25rem;margin-bottom:2rem;max-width:560px;position:relative;
+}
+.hero-identity-text{font-family:var(--mono);font-size:11px;color:var(--gold);line-height:1.6;}
+.hero-ctas{display:flex;gap:.75rem;flex-wrap:wrap;position:relative;margin-bottom:3rem;}
+.btn-primary{
+  font-family:var(--mono);font-size:12px;background:var(--gold);color:#0a0a0a;
+  padding:.8rem 1.75rem;border-radius:var(--r-sm);font-weight:700;letter-spacing:.03em;
+  transition:all var(--trans);display:inline-flex;align-items:center;gap:6px;
+  min-height:44px;
+}
+.btn-primary:hover{background:#e8c547;transform:translateY(-1px);}
+.btn-primary:active{transform:translateY(0) scale(.98);}
+.btn-ghost{
+  font-family:var(--mono);font-size:12px;color:var(--text2);padding:.8rem 1.75rem;
+  border-radius:var(--r-sm);border:1px solid var(--border);transition:all var(--trans);
+  display:inline-flex;align-items:center;gap:6px;min-height:44px;
+}
+.btn-ghost:hover{border-color:var(--border2);color:var(--gold);}
+.btn-ghost:active{transform:scale(.98);}
+.hero-stats{display:flex;gap:2.5rem;flex-wrap:wrap;position:relative;}
+.hero-stat-num{font-family:var(--display);font-size:1.8rem;font-weight:800;color:var(--gold);line-height:1;}
+.hero-stat-label{font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-top:3px;}
+
+/* ============================================================
+   BANNER
+============================================================ */
+.banner-strip{width:100%;height:280px;position:relative;overflow:hidden;}
+.banner-strip img{width:100%;height:100%;object-fit:cover;filter:grayscale(20%) brightness(.5);}
+.banner-strip-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to right,var(--bg) 0%,transparent 35%,transparent 65%,var(--bg) 100%),
+    linear-gradient(to bottom,transparent 35%,var(--bg) 100%);
+}
+
+/* ============================================================
+   SECTION
+============================================================ */
+.section{padding:4rem 4rem;border-top:1px solid var(--border);}
+.section-eyebrow{font-family:var(--mono);font-size:9px;color:var(--gold);letter-spacing:.2em;text-transform:uppercase;margin-bottom:.6rem;}
+.section-title{font-family:var(--display);font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;color:var(--text);margin-bottom:.6rem;line-height:1.15;}
+.section-title .accent{color:var(--gold);}
+.section-sub{font-size:.95rem;color:var(--text2);max-width:520px;margin-bottom:2.5rem;line-height:1.75;}
+
+/* ============================================================
+   PHASE LADDER — The Progression System
+============================================================ */
+.phase-ladder{display:flex;flex-direction:column;gap:1px;background:var(--border);border:1px solid var(--border);}
+
+.phase-card{background:var(--card-bg);position:relative;overflow:hidden;}
+.phase-card-header{
+  display:grid;grid-template-columns:auto 1fr auto;
+  align-items:center;gap:1rem;padding:1.5rem 2rem;cursor:pointer;
+  transition:background var(--trans);
+}
+.phase-card-header:hover{background:var(--bg3);}
+.phase-card-header.open{background:var(--bg3);border-bottom:1px solid var(--border);}
+
+.phase-number{
+  font-family:var(--display);font-size:2.5rem;font-weight:800;
+  color:var(--gold);opacity:.25;line-height:1;min-width:3rem;
+}
+.phase-info{}
+.phase-label{font-family:var(--mono);font-size:9px;color:var(--gold);letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px;}
+.phase-title{font-family:var(--display);font-size:1.15rem;font-weight:700;color:var(--text);margin-bottom:2px;}
+.phase-meta{font-family:var(--mono);font-size:10px;color:var(--text3);}
+.phase-toggle{font-size:18px;color:var(--gold);transition:transform .3s;flex-shrink:0;}
+.phase-card-header.open .phase-toggle{transform:rotate(45deg);}
+
+.phase-body{display:none;padding:2rem;}
+.phase-body.open{display:block;}
+
+/* Phase section grid */
+.phase-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem;}
+.phase-section-card{background:var(--bg);border:1px solid var(--border);padding:1.25rem;}
+.phase-section-label{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:.6rem;}
+.phase-section-label.gold{color:var(--gold);}
+.phase-section-label.blue{color:#7ec8e3;}
+.phase-section-label.green{color:#98d982;}
+.phase-section-label.purple{color:#c9a0dc;}
+.phase-item{font-size:12px;color:var(--text2);padding:3px 0;line-height:1.5;display:flex;align-items:flex-start;gap:6px;}
+.phase-item::before{content:'›';color:var(--gold);flex-shrink:0;margin-top:1px;}
+
+/* Proof of work */
+.proof-section{background:var(--bg);border:1px solid var(--border);padding:1.25rem;margin-bottom:1.5rem;}
+.proof-title{font-family:var(--display);font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:.75rem;display:flex;align-items:center;gap:6px;}
+.proof-items{display:flex;flex-wrap:wrap;gap:.5rem;}
+.proof-item{
+  font-family:var(--mono);font-size:10px;border:1px solid var(--border);
+  padding:.35rem .75rem;color:var(--text2);display:flex;align-items:center;gap:5px;
+}
+.proof-item.github{border-color:#98d982;color:#98d982;}
+.proof-item.video{border-color:#ff8c94;color:#ff8c94;}
+.proof-item.linkedin{border-color:#7ec8e3;color:#7ec8e3;}
+.proof-item.writeup{border-color:var(--gold);color:var(--gold);}
+.proof-item.diagram{border-color:#c9a0dc;color:#c9a0dc;}
+
+/* Checkpoint project */
+.checkpoint-card{border:1px solid var(--border2);overflow:hidden;margin-bottom:1.5rem;}
+.checkpoint-header{
+  background:var(--gold-glow);padding:.85rem 1.25rem;
+  display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);
+}
+.checkpoint-icon{color:var(--gold);font-size:13px;}
+.checkpoint-title{font-family:var(--display);font-size:13px;font-weight:700;color:var(--text);}
+.checkpoint-tracks{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);}
+.checkpoint-track{background:var(--card-bg);padding:1rem 1.25rem;}
+.ct-label{font-family:var(--mono);font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.4rem;}
+.ct-name{font-family:var(--display);font-size:13px;font-weight:700;color:var(--text);margin-bottom:.3rem;}
+.ct-desc{font-size:11px;color:var(--text2);line-height:1.6;}
+
+/* Career outcomes */
+.career-outcomes{display:flex;flex-wrap:wrap;gap:.4rem;}
+.career-pill{
+  font-family:var(--mono);font-size:9px;color:var(--gold-dim);
+  border:1px solid var(--border);padding:.25rem .65rem;border-radius:2px;
+}
+
+/* Phase start button */
+.phase-start-btn{
+  font-family:var(--mono);font-size:11px;color:#0a0a0a;background:var(--gold);
+  padding:.65rem 1.5rem;border-radius:var(--r-sm);font-weight:700;
+  display:inline-flex;align-items:center;gap:6px;transition:all var(--trans);
+  min-height:40px;margin-top:.5rem;
+}
+.phase-start-btn:hover{background:#e8c547;}
+.phase-start-btn:active{transform:scale(.98);}
+
+/* ============================================================
+   REAL WORLD PROJECTS (from GitHub repos)
+============================================================ */
+.rwp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;}
+.rwp-card{
+  background:var(--card-bg);border:1px solid var(--border);padding:1.25rem;
+  transition:all var(--trans);position:relative;overflow:hidden;
+}
+.rwp-card:hover{border-color:var(--border2);transform:translateY(-2px);}
+.rwp-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--gold);opacity:0;transition:opacity var(--trans);
+}
+.rwp-card:hover::before{opacity:1;}
+.rwp-level{font-family:var(--mono);font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.5rem;}
+.rwp-name{font-family:var(--display);font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:.4rem;}
+.rwp-desc{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:.75rem;}
+.rwp-inspired{font-family:var(--mono);font-size:9px;color:var(--text3);}
+.rwp-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:.5rem;}
+.rwp-tag{font-family:var(--mono);font-size:9px;color:var(--text3);border:1px solid var(--border);padding:1px 6px;}
+
+/* ============================================================
+   CREDIBILITY
+============================================================ */
+.credibility{
+  padding:4rem;border-top:1px solid var(--border);
+  display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;
+}
+.cred-name{font-family:var(--display);font-size:1.4rem;font-weight:800;color:var(--text);margin-bottom:.2rem;}
+.cred-title{font-family:var(--mono);font-size:10px;color:var(--gold);letter-spacing:.08em;margin-bottom:.75rem;}
+.cred-bio{font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:1.25rem;}
+.cred-cert{
+  display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;
+  color:var(--gold);border:1px solid var(--border2);padding:.5rem 1rem;margin-bottom:1rem;
+}
+.cred-links{display:flex;gap:.5rem;flex-wrap:wrap;}
+.cred-link{
+  font-family:var(--mono);font-size:10px;color:var(--text3);
+  border:1px solid var(--border);padding:4px 10px;transition:all var(--trans);min-height:32px;
+  display:flex;align-items:center;
+}
+.cred-link:hover{border-color:var(--gold);color:var(--gold);}
+.cred-badges{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);}
+.cred-badge{background:var(--card-bg);padding:1.25rem;}
+.cb-num{font-family:var(--display);font-size:1.6rem;font-weight:800;color:var(--gold);}
+.cb-label{font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-top:2px;}
+
+/* ============================================================
+   LESSON VIEW
+============================================================ */
+.lesson-view.active{display:block;}
+.lesson-hero{
+  position:relative;padding:2.5rem 4rem 2rem;border-bottom:1px solid var(--border);overflow:hidden;
+}
+.lesson-hero-grid{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(var(--hero-grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--hero-grid) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+.lesson-breadcrumb{font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:.6rem;display:flex;align-items:center;gap:5px;position:relative;}
+.lesson-breadcrumb span{color:var(--gold);}
+.lesson-num-label{font-family:var(--mono);font-size:9px;color:var(--gold);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem;position:relative;}
+.lesson-title{font-family:var(--display);font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;color:var(--text);line-height:1.1;margin-bottom:.75rem;position:relative;}
+.lesson-meta{display:flex;gap:1.25rem;flex-wrap:wrap;position:relative;}
+.lesson-meta-item{font-family:var(--mono);font-size:10px;color:var(--text3);display:flex;align-items:center;gap:4px;}
+.meta-dot{color:var(--gold);}
+
+.video-block{margin:2rem 4rem;background:var(--code-bg);border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;}
+.video-inner{display:flex;align-items:center;gap:1.25rem;padding:1.1rem 1.5rem;}
+.video-play{width:42px;height:42px;min-width:42px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;color:#0a0a0a;font-size:13px;padding-left:2px;}
+.video-tag{font-family:var(--mono);font-size:9px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px;}
+.video-title-text{font-size:12px;color:var(--text2);}
+
+.lesson-body{padding:0 4rem 2rem;max-width:800px;}
+.ls-label{
+  font-family:var(--mono);font-size:9px;color:var(--gold);letter-spacing:.18em;
+  text-transform:uppercase;margin-bottom:.5rem;margin-top:2rem;
+  display:flex;align-items:center;gap:8px;
+}
+.ls-label::after{content:'';flex:1;height:1px;background:var(--border);max-width:50px;}
+.lesson-body p{color:var(--text2);margin-bottom:.9rem;font-size:14px;line-height:1.8;}
+.lesson-body p strong{color:var(--text);font-weight:500;}
+.lesson-body p code{
+  background:var(--code-bg);border:1px solid var(--code-border);
+  padding:1px 5px;border-radius:3px;font-size:12px;color:var(--gold);font-family:var(--mono);
+}
+
+/* Callouts */
+.callout{display:flex;gap:.85rem;padding:.9rem 1.1rem;margin:1.25rem 0;border-radius:var(--r-sm);border-left:3px solid;}
+.callout-tip{background:rgba(152,217,130,.05);border-color:#98d982;}
+.callout-warn{background:rgba(255,140,148,.05);border-color:#ff8c94;}
+.callout-fact{background:rgba(212,175,55,.06);border-color:var(--gold);}
+.callout-use{background:rgba(126,200,227,.05);border-color:#7ec8e3;}
+.callout-challenge{background:rgba(192,160,220,.06);border-color:#c9a0dc;}
+.callout-identity{background:rgba(212,175,55,.08);border-color:var(--gold);}
+.callout-icon{font-size:13px;flex-shrink:0;padding-top:2px;}
+.callout-inner{font-size:12.5px;color:var(--text2);line-height:1.7;}
+.callout-inner strong{color:var(--text);}
+.callout-header{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px;font-weight:700;}
+.callout-tip .callout-header{color:#98d982;}
+.callout-warn .callout-header{color:#ff8c94;}
+.callout-fact .callout-header{color:var(--gold);}
+.callout-use .callout-header{color:#7ec8e3;}
+.callout-challenge .callout-header{color:#c9a0dc;}
+.callout-identity .callout-header{color:var(--gold);}
+
+/* Code blocks */
+.code-block{margin:1.25rem 0;background:var(--code-bg);border:1px solid var(--code-border);border-radius:var(--r-md);overflow:hidden;}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:.5rem .9rem;background:rgba(255,255,255,.03);border-bottom:1px solid var(--code-border);}
+.code-lang-tag{font-family:var(--mono);font-size:9px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;}
+.code-actions{display:flex;align-items:center;gap:6px;}
+.code-file{font-family:var(--mono);font-size:9px;color:var(--cm);}
+.copy-btn{font-family:var(--mono);font-size:9px;color:var(--text3);padding:2px 7px;border:1px solid var(--code-border);border-radius:2px;transition:all var(--trans);min-height:24px;}
+.copy-btn:hover{color:var(--gold);border-color:var(--border2);}
+pre{padding:1rem 1.25rem;overflow-x:auto;font-family:var(--mono);font-size:12px;line-height:1.75;color:#d0d0d0;}
+.kw{color:var(--kw)}.fn{color:var(--fn)}.st{color:var(--st)}.cm{color:var(--cm);font-style:italic}.nm{color:var(--nm)}.op{color:var(--op)}.ty{color:var(--ty)}
+
+.output-block{background:#050505;border:1px solid var(--code-border);border-radius:var(--r-md);overflow:hidden;margin:.75rem 0 1.25rem;}
+.output-header{padding:.4rem .9rem;background:rgba(152,217,130,.05);border-bottom:1px solid var(--code-border);font-family:var(--mono);font-size:9px;color:#98d982;letter-spacing:.1em;text-transform:uppercase;}
+.output-block pre{padding:.85rem 1.25rem;color:#98d982;font-size:12px;}
+
+.mistake-list{list-style:none;margin:.4rem 0 1rem;}
+.mistake-list li{display:flex;gap:8px;font-size:13px;color:var(--text2);padding:.5rem 0;border-bottom:1px solid var(--border);line-height:1.6;}
+.mistake-list li:last-child{border-bottom:none;}
+.mistake-icon{color:#ff8c94;flex-shrink:0;font-size:11px;padding-top:3px;}
+
+/* Lesson nav */
+.lesson-nav{
+  padding:1.75rem 4rem 2.5rem;display:flex;justify-content:space-between;
+  align-items:center;border-top:1px solid var(--border);gap:1rem;max-width:800px;
+  flex-wrap:wrap;
+}
+.lesson-nav-btn{
+  display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;
+  color:var(--text3);border:1px solid var(--border);padding:.6rem 1.1rem;
+  border-radius:var(--r-sm);transition:all var(--trans);min-height:40px;
+}
+.lesson-nav-btn:hover{border-color:var(--gold);color:var(--gold);}
+.lesson-nav-btn:active{transform:scale(.98);}
+.lesson-nav-btn.primary{background:var(--gold);color:#0a0a0a;border-color:var(--gold);font-weight:700;}
+.lesson-nav-btn.primary:hover{background:#e8c547;}
+.lesson-nav-btn:disabled{opacity:.3;cursor:not-allowed;}
+
+.mark-done-btn{
+  font-family:var(--mono);font-size:10px;color:var(--text3);border:1px solid var(--border);
+  padding:.5rem .9rem;border-radius:var(--r-sm);transition:all var(--trans);
+  display:flex;align-items:center;gap:5px;min-height:40px;
+}
+.mark-done-btn:hover{border-color:#98d982;color:#98d982;}
+.mark-done-btn:active{transform:scale(.98);}
+.mark-done-btn.done{border-color:#98d982;color:#98d982;background:rgba(152,217,130,.06);}
+
+/* ============================================================
+   CAREERS VIEW
+============================================================ */
+.careers-view.active{display:block;padding:3rem 4rem 5rem;}
+.career-grid-pg{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:2rem;}
+.career-card-pg{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r-md);padding:1.5rem;transition:all var(--trans);}
+.career-card-pg:hover{border-color:var(--border2);transform:translateY(-2px);}
+.career-icon{font-size:1.3rem;margin-bottom:.65rem;}
+.career-role-title{font-family:var(--display);font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:.35rem;}
+.career-desc-text{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:.65rem;}
+.career-companies{display:flex;flex-wrap:wrap;gap:3px;}
+.company-tag{font-family:var(--mono);font-size:9px;color:var(--text3);border:1px solid var(--border);padding:2px 6px;}
+
+/* ============================================================
+   MOBILE RESPONSIVE
+============================================================ */
+@media (max-width:900px){
+  .main-content{margin-left:0;}
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.mobile-open{transform:translateX(0);}
+  .sidebar-mobile-hidden{display:none;}
+
+  .hero{padding:2.5rem 1.25rem 2.5rem;}
+  .section{padding:2.5rem 1.25rem;}
+  .credibility{grid-template-columns:1fr;gap:2rem;padding:2.5rem 1.25rem;}
+  .lesson-hero{padding:1.75rem 1.25rem;}
+  .lesson-body{padding:0 1.25rem 2rem;}
+  .video-block{margin:1.75rem 1.25rem;}
+  .lesson-nav{padding:1.5rem 1.25rem;flex-direction:column;align-items:stretch;}
+  .lesson-nav-btn{justify-content:center;}
+  .careers-view.active{padding:2rem 1.25rem;}
+
+  .phase-grid{grid-template-columns:1fr;}
+  .checkpoint-tracks{grid-template-columns:1fr;}
+  .rwp-grid{grid-template-columns:1fr;}
+  .career-grid-pg{grid-template-columns:1fr;}
+  .hero-stats{gap:1.5rem;}
+  .topbar-link{display:none;}
+
+  .phase-card-header{padding:1.1rem 1.25rem;gap:.75rem;}
+  .phase-number{font-size:1.8rem;}
+  .phase-body{padding:1.25rem;}
+  .section-title{font-size:1.5rem;}
+}
+
+@media (max-width:480px){
+  .topbar{padding:0 .75rem;gap:8px;}
+  .topbar-logo-text{display:none;}
+  .topbar-sep{display:none;}
+  .hero-headline{font-size:2rem;}
+  .phase-title{font-size:1rem;}
+  .hero-stats{gap:1.25rem;}
+  .hero-stat-num{font-size:1.5rem;}
+  pre{font-size:11px;}
+}
+
+/* ============================================================
+   PROGRESS PULSE ANIMATION
+============================================================ */
+@keyframes progressPulse{
+  0%{box-shadow:0 0 0 0 rgba(212,175,55,.4);}
+  70%{box-shadow:0 0 0 6px rgba(212,175,55,0);}
+  100%{box-shadow:0 0 0 0 rgba(212,175,55,0);}
+}
+.progress-pulse{animation:progressPulse 1.5s ease-out;}
+
+/* ============================================================
+   COMPLETION CELEBRATION
+============================================================ */
+@keyframes celebrationFade{
+  0%{opacity:0;transform:translateY(-10px);}
+  20%{opacity:1;transform:translateY(0);}
+  80%{opacity:1;transform:translateY(0);}
+  100%{opacity:0;transform:translateY(-5px);}
+}
+.completion-toast{
+  position:fixed;top:80px;right:1rem;z-index:500;
+  background:var(--gold);color:#0a0a0a;
+  padding:.75rem 1.25rem;border-radius:var(--r-sm);
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  animation:celebrationFade 2.5s ease forwards;
+  pointer-events:none;
+  box-shadow:0 4px 20px rgba(212,175,55,.4);
+}
+</style>
+</head>
+<body>
+
+<!-- ══ TOPBAR ══ -->
+<header class="topbar">
+  <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+  <a class="topbar-logo" href="#" onclick="showHome();return false;">
+    <img src="https://res.cloudinary.com/dc2gwj09q/image/upload/f_auto,q_auto/Alix_Logo-removebg-preview_aykhme" alt="Alix">
+    <span class="topbar-logo-text">LEARN</span>
+  </a>
+  <div class="topbar-sep"></div>
+  <span class="topbar-course-title" id="topbar-title">C++ Complete Course</span>
+  <div class="topbar-actions">
+    <a class="topbar-link" href="#" onclick="showCareers();return false;">Careers</a>
+    <a class="topbar-link" href="https://alixbc.com.ng" target="_blank">Marketplace →</a>
+    <div class="theme-toggle">
+      <button class="theme-btn active" id="dark-btn" onclick="setTheme('dark')" title="Dark">🌙</button>
+      <button class="theme-btn" id="light-btn" onclick="setTheme('light')" title="Light">☀️</button>
+    </div>
+  </div>
+  <div class="topbar-progress" id="topbar-progress"></div>
+</header>
+
+<!-- ══ LAYOUT ══ -->
+<div class="app-layout">
+
+  <!-- Sidebar Overlay (closes sidebar on outside tap) -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar mobile-hidden" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-course-tag">C++ Course</div>
+      <div class="sidebar-course-name">Complete C++ Programming</div>
+      <div class="sidebar-progress-info" id="sb-progress-text">0 of 40 lessons complete</div>
+      <div class="sidebar-progress-bar"><div class="sidebar-progress-fill" id="sb-progress-fill"></div></div>
+    </div>
+    <nav id="sidebar-nav"></nav>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main-content">
+
+    <!-- ══ HOME VIEW ══ -->
+    <div class="home-view" id="home-view">
+
+      <section class="hero">
+        <div class="hero-grid"></div>
+        <div class="hero-eyebrow">Alix Learn · Free · Project-Based</div>
+        <h1 class="hero-headline">
+          Learn C++.<br>
+          <span class="accent">Build Real Systems.</span>
+          <span class="line2">Prove You Can.</span>
+        </h1>
+        <p class="hero-sub">A structured, project-based C++ course for engineering students who want to write firmware, build tools, and join the 5% who actually ship real systems. Built for Nigerian and African engineers.</p>
+
+        <div class="hero-identity">
+          <div class="hero-identity-text">
+            Engineers who skip this course don't build better things — they build nothing. The version of you that ships firmware, writes robotics code, and lands a systems role is on the other side of this course. That version of you isn't optional. Start now.
+          </div>
+        </div>
+
+        <div class="hero-ctas">
+          <button class="btn-primary" onclick="goToLesson('m1','l1')">Start Module 1 →</button>
+          <button class="btn-ghost" onclick="document.getElementById('ladder-section').scrollIntoView({behavior:'smooth'})">View Roadmap</button>
+        </div>
+
+        <div class="hero-stats">
+          <div><div class="hero-stat-num">6</div><div class="hero-stat-label">Phases</div></div>
+          <div><div class="hero-stat-num">8</div><div class="hero-stat-label">Modules</div></div>
+          <div><div class="hero-stat-num">40</div><div class="hero-stat-label">Lessons</div></div>
+          <div><div class="hero-stat-num">Free</div><div class="hero-stat-label">Certificate</div></div>
+        </div>
+      </section>
+
+      <div class="banner-strip">
+        <img src="https://res.cloudinary.com/dc2gwj09q/image/upload/f_auto,q_auto/SYNTHOVA_LOGO_1-removebg-preview_2_pc5zpn" alt="C++ Course Banner — replace with actual banner">
+        <div class="banner-strip-overlay"></div>
+      </div>
+
+      <!-- THE PHASE LADDER -->
+      <section class="section" id="ladder-section">
+        <div class="section-eyebrow">Learning Progression</div>
+        <h2 class="section-title">Six phases. <span class="accent">One destination.</span></h2>
+        <p class="section-sub">This is not a playlist. It is a ladder. Each rung is earned. Each phase unlocks the next. Engineers who skip rungs fall. Engineers who climb reach the top.</p>
+
+        <div class="phase-ladder" id="phase-ladder">
+          <!-- Phases are rendered by JS -->
+        </div>
+      </section>
+
+      <!-- REAL WORLD PROJECTS -->
+      <section class="section">
+        <div class="section-eyebrow">Inspired by Real Production Code</div>
+        <h2 class="section-title">Projects from <span class="accent">real systems.</span></h2>
+        <p class="section-sub">Every project in this course is inspired by patterns extracted from real-world C++ codebases — adapted into teachable milestones. These are the kind of things working engineers actually build.</p>
+
+        <div class="rwp-grid">
+          <div class="rwp-card">
+            <div class="rwp-level">Phase 2 · Practice</div>
+            <div class="rwp-name">Minimal Text Tokenizer</div>
+            <div class="rwp-desc">Parse input text into tokens using character classification and string traversal. The same pattern used in real compiler lexers and language model tokenizers.</div>
+            <div class="rwp-inspired">Inspired by: llama.cpp · ggerganov</div>
+            <div class="rwp-tags"><span class="rwp-tag">strings</span><span class="rwp-tag">loops</span><span class="rwp-tag">arrays</span></div>
+          </div>
+          <div class="rwp-card">
+            <div class="rwp-level">Phase 3 · Integration</div>
+            <div class="rwp-name">Pixel Value Analyzer</div>
+            <div class="rwp-desc">Load raw image data, compute channel statistics, detect regions above brightness thresholds. The foundational operation behind every computer vision pipeline.</div>
+            <div class="rwp-inspired">Inspired by: opencv/opencv · Intel</div>
+            <div class="rwp-tags"><span class="rwp-tag">2D arrays</span><span class="rwp-tag">structs</span><span class="rwp-tag">file I/O</span></div>
+          </div>
+          <div class="rwp-card">
+            <div class="rwp-level">Phase 3 · Integration</div>
+            <div class="rwp-name">Audio Frame Buffer Processor</div>
+            <div class="rwp-desc">Implement a circular buffer that processes audio frames: compute RMS energy, detect silence, and log frame events. The exact pattern in whisper.cpp's audio pipeline.</div>
+            <div class="rwp-inspired">Inspired by: whisper.cpp · ggerganov</div>
+            <div class="rwp-tags"><span class="rwp-tag">circular buffer</span><span class="rwp-tag">pointers</span><span class="rwp-tag">DSP</span></div>
+          </div>
+          <div class="rwp-card">
+            <div class="rwp-level">Phase 4 · Real-world Systems</div>
+            <div class="rwp-name">Key-Value Store</div>
+            <div class="rwp-desc">Build a file-backed key-value store: insert, lookup, delete, persist to disk. The same data structure pattern powering RocksDB and LevelDB at Facebook and Google.</div>
+            <div class="rwp-inspired">Inspired by: facebook/rocksdb · google/leveldb</div>
+            <div class="rwp-tags"><span class="rwp-tag">OOP</span><span class="rwp-tag">file I/O</span><span class="rwp-tag">hashing</span></div>
+          </div>
+          <div class="rwp-card">
+            <div class="rwp-level">Phase 4 · Real-world Systems</div>
+            <div class="rwp-name">JSON Config Parser</div>
+            <div class="rwp-desc">Build a lightweight JSON-like config file parser from scratch: tokenize, parse key-value pairs, support nested objects. Same concept behind nlohmann::json, the most-starred C++ library.</div>
+            <div class="rwp-inspired">Inspired by: nlohmann/json</div>
+            <div class="rwp-tags"><span class="rwp-tag">parsing</span><span class="rwp-tag">recursion</span><span class="rwp-tag">strings</span></div>
+          </div>
+          <div class="rwp-card">
+            <div class="rwp-level">Phase 5 · Portfolio</div>
+            <div class="rwp-name">Nearest-Neighbor Search Engine</div>
+            <div class="rwp-desc">Implement brute-force vector similarity search over a small dataset. The foundational algorithm behind FAISS — Facebook's billion-scale similarity search library.</div>
+            <div class="rwp-inspired">Inspired by: facebookresearch/faiss</div>
+            <div class="rwp-tags"><span class="rwp-tag">vectors</span><span class="rwp-tag">OOP</span><span class="rwp-tag">algorithms</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CREDIBILITY -->
+      <div class="credibility">
+        <div>
+          <div class="cred-name">Ebosetale Isesele .O.</div>
+          <div class="cred-title">Creator of Alix · Embedded Systems Engineer</div>
+          <p class="cred-bio">Engineering student at the University of Benin and founder of Alix — Nigeria's Engineering Marketplace. Building tools for Africans who want to work at the frontier of hardware.</p>
+          <p class="cred-bio">This course exists because the best C++ resources aren't built for hardware engineers. They are now.</p>
+          <div class="cred-cert">⬡ FREE completion certificate on every course</div>
+          <div class="cred-links">
+            <a class="cred-link" href="https://linkedin.com/in/ebosetaleisesele" target="_blank">LinkedIn ↗</a>
+            <a class="cred-link" href="https://github.com/ebose267" target="_blank">GitHub ↗</a>
+            <a class="cred-link" href="https://alixbc.com.ng" target="_blank">Alix ↗</a>
+            <a class="cred-link" href="https://substack.com/@synthova" target="_blank">Newsletter ↗</a>
+          </div>
+        </div>
+        <div class="cred-badges">
+          <div class="cred-badge"><div class="cb-num">8</div><div class="cb-label">Modules</div></div>
+          <div class="cred-badge"><div class="cb-num">40</div><div class="cb-label">Lessons</div></div>
+          <div class="cred-badge"><div class="cb-num">Free</div><div class="cb-label">Certificate</div></div>
+          <div class="cred-badge"><div class="cb-num">6</div><div class="cb-label">Real Projects</div></div>
+        </div>
+      </div>
+
+    </div><!-- /home-view -->
+
+    <!-- ══ LESSON VIEW ══ -->
+    <div class="lesson-view" id="lesson-view">
+      <div id="lesson-content"></div>
+    </div>
+
+    <!-- ══ CAREERS VIEW ══ -->
+    <div class="careers-view" id="careers-view">
+      <div class="section-eyebrow">Where C++ Takes You</div>
+      <h2 class="section-title" style="margin-bottom:.5rem">Your <span class="accent">career outcomes.</span></h2>
+      <p style="color:var(--text2);font-size:13px;margin-bottom:2.5rem;max-width:540px;line-height:1.75">
+        C++ fluency is not a credential. It is a filter. The roles below are filled by engineers who did the work. Every one of them requires the skills this course teaches.
+      </p>
+      <div class="career-grid-pg">
+        <div class="career-card-pg"><div class="career-icon">⚙</div><div class="career-role-title">Embedded Systems Engineer</div><div class="career-desc-text">Firmware for microcontrollers, PLCs, and IoT. GPIO, UART, SPI, I2C. When you want to make hardware do things.</div><div class="career-companies"><span class="company-tag">Siemens</span><span class="company-tag">Bosch</span><span class="company-tag">STMicro</span><span class="company-tag">ARM</span></div></div>
+        <div class="career-card-pg"><div class="career-icon">🤖</div><div class="career-role-title">Robotics Software Engineer</div><div class="career-desc-text">Motion planning, sensor fusion, control systems. ROS2 is C++. The fastest-growing engineering software domain.</div><div class="career-companies"><span class="company-tag">Boston Dynamics</span><span class="company-tag">ABB</span><span class="company-tag">KUKA</span></div></div>
+        <div class="career-card-pg"><div class="career-icon">🔌</div><div class="career-role-title">Firmware Engineer</div><div class="career-desc-text">Real-time OS, device drivers, bootloaders. You write the software that starts before the OS exists.</div><div class="career-companies"><span class="company-tag">Qualcomm</span><span class="company-tag">Nordic Semi</span><span class="company-tag">TI</span></div></div>
+        <div class="career-card-pg"><div class="career-icon">📡</div><div class="career-role-title">IoT Developer</div><div class="career-desc-text">Connected device firmware, cloud data pipelines, sensor networks. The intersection of embedded and cloud.</div><div class="career-companies"><span class="company-tag">AWS IoT</span><span class="company-tag">Azure IoT</span><span class="company-tag">Espressif</span></div></div>
+        <div class="career-card-pg"><div class="career-icon">⚡</div><div class="career-role-title">Power Electronics Engineer</div><div class="career-desc-text">Control algorithms for inverters, converters, motor drives. When physics and software meet.</div><div class="career-companies"><span class="company-tag">ABB</span><span class="company-tag">Schneider</span><span class="company-tag">Eaton</span></div></div>
+        <div class="career-card-pg"><div class="career-icon">🎯</div><div class="career-role-title">Control Systems Engineer</div><div class="career-desc-text">PID, MPC, state machines. From drone stabilization to industrial automation. C++ in the loop.</div><div class="career-companies"><span class="company-tag">Honeywell</span><span class="company-tag">Rockwell</span><span class="company-tag">Emerson</span></div></div>
+        <div class="career-card-pg"><div class="career-icon">✈</div><div class="career-role-title">Aerospace Software Engineer</div><div class="career-desc-text">Flight control, avionics, mission-critical real-time systems. DO-178C certified C++ for systems where failure is not a word.</div><div class="career-companies"><span class="company-tag">Boeing</span><span class="company-tag">SpaceX</span><span class="company-tag">Airbus</span></div></div>
+        <div class="career-card-pg"><div class="career-icon">🔧</div><div class="career-role-title">Test & Validation Engineer</div><div class="career-desc-text">Hardware-in-the-loop testing, automated test frameworks, signal analysis. C++ for instrumentation and automation.</div><div class="career-companies"><span class="company-tag">National Instruments</span><span class="company-tag">Keysight</span><span class="company-tag">dSPACE</span></div></div>
+        <div class="career-card-pg"><div class="career-icon">🖥</div><div class="career-role-title">Systems Software Engineer</div><div class="career-desc-text">Compilers, OS components, databases. Chrome, MySQL, LLVM are C++. The bedrock of computing.</div><div class="career-companies"><span class="company-tag">Google</span><span class="company-tag">Microsoft</span><span class="company-tag">Meta</span></div></div>
+      </div>
+    </div>
+
+  </main>
+</div><!-- /app-layout -->
+
+<script>
+/* ============================================================
+   COURSE DATA
+============================================================ */
+const PHASES = [
+  {
+    id:'ph1',num:'01',label:'Foundation',
+    title:'Foundation — The Language Itself',
+    meta:'Modules 1–2 · 10 lessons',
+    desc:'You cannot skip this. Every engineer who builds real systems started exactly here. Variables, memory, the build pipeline. This is where C++ engineers are made, not born.',
+    modules:['m1','m2'],
+    careers:['Embedded Systems Engineer','Firmware Engineer','Any C++ role'],
+    proofOfWork:[
+      {type:'github',label:'GitHub Repo: cpp-foundation'},
+      {type:'writeup',label:'README with build instructions'},
+    ],
+    checkpoint:{
+      eng:{name:'System Info Reporter + Sensor Calculator',desc:'A formatted console program accepting sensor specs, computing Ohm\'s Law in all forms, logging output to file.'},
+      gen:{name:'CLI Welcome Screen + Calculator',desc:'A styled terminal app accepting user input, computing results, and printing formatted output. Zero warnings.'}
+    }
+  },
+  {
+    id:'ph2',num:'02',label:'Practice',
+    title:'Practice — Control & Logic',
+    meta:'Modules 3–4 · 10 lessons',
+    desc:'Logic and reusability. Engineers who don\'t master control flow write brittle, linear code that breaks the moment the input changes. Functions make your code a system, not a script.',
+    modules:['m3','m4'],
+    careers:['Test & Validation Engineer','IoT Developer','Control Systems Engineer'],
+    proofOfWork:[
+      {type:'github',label:'GitHub Repo: cpp-practice'},
+      {type:'diagram',label:'Program flow diagram'},
+      {type:'writeup',label:'Function design document'},
+    ],
+    checkpoint:{
+      eng:{name:'Threshold Alert System + Tokenizer',desc:'Loop over 20 sensor readings, detect anomalies, dispatch alerts via function calls. Includes a minimal text tokenizer inspired by real parser patterns.'},
+      gen:{name:'Task Filter + Menu System',desc:'Priority-based task filter with a switch-case menu, function-extracted operations, and a minimal tokenizer for task name parsing.'}
+    }
+  },
+  {
+    id:'ph3',num:'03',label:'Integration',
+    title:'Integration — Memory & Data',
+    meta:'Module 5 · 5 lessons',
+    desc:'Pointers and memory are the test. Most beginners either master this or retreat to Python. You are not retreating. This is the wall that separates tutorial engineers from real ones.',
+    modules:['m5'],
+    careers:['Embedded Systems Engineer','Firmware Engineer','Robotics Engineer'],
+    proofOfWork:[
+      {type:'github',label:'GitHub Repo: cpp-memory'},
+      {type:'diagram',label:'Memory layout diagram (hand-drawn or digital)'},
+      {type:'writeup',label:'Write-up: where each variable lives in memory'},
+    ],
+    checkpoint:{
+      eng:{name:'Audio Frame Buffer + Pixel Analyzer',desc:'Circular buffer for audio frames (whisper.cpp pattern). Separate 2D array pixel analyzer computing channel statistics. Both use pointer arithmetic.'},
+      gen:{name:'Buffer Manager + Array Processor',desc:'Generic circular buffer with two-pointer design. Array processing pipeline with pointer arithmetic traversal. No bracket notation inside core functions.'}
+    }
+  },
+  {
+    id:'ph4',num:'04',label:'Real-World Systems',
+    title:'Real-World Systems — OOP & File I/O',
+    meta:'Modules 6–7 · 10 lessons',
+    desc:'This is where your code starts looking like what ships in production. Classes, inheritance, polymorphism, file handling, exceptions. The patterns you learn here are in TensorFlow, Chrome, and every system that powers your daily life.',
+    modules:['m6','m7'],
+    careers:['Systems Engineer','IoT Developer','Power Electronics Engineer','Control Systems Engineer'],
+    proofOfWork:[
+      {type:'github',label:'GitHub Repo: cpp-systems'},
+      {type:'video',label:'Demo video: program running end-to-end'},
+      {type:'writeup',label:'Class hierarchy diagram + design rationale'},
+      {type:'diagram',label:'UML-style class diagram'},
+    ],
+    checkpoint:{
+      eng:{name:'Key-Value Store + Sensor Logger',desc:'File-backed key-value store (RocksDB pattern). Full OOP sensor logger with class hierarchy, exception handling, CSV output, and summary reports.'},
+      gen:{name:'JSON Config Parser + Task Manager',desc:'Lightweight JSON-like parser (nlohmann/json pattern). Full CLI task manager with file persistence, class hierarchy, and formatted reports.'}
+    }
+  },
+  {
+    id:'ph5',num:'05',label:'Portfolio-Grade Builds',
+    title:'Portfolio Builds — AI-Assisted Development',
+    meta:'Module 8 · 5 lessons',
+    desc:'You have the fundamentals. Now you add the multiplier. Cursor, Copilot, Claude — used correctly, with the judgment you\'ve earned. Engineers who can wield AI tools without losing engineering discipline are the ones companies fight over.',
+    modules:['m8'],
+    careers:['Any engineering software role','ML Systems Engineer','Senior Embedded Engineer'],
+    proofOfWork:[
+      {type:'github',label:'GitHub Repo: cpp-vibe-capstone'},
+      {type:'video',label:'Demo video: AI workflow documented'},
+      {type:'linkedin',label:'LinkedIn post: what you built and how'},
+      {type:'writeup',label:'Audit log: every AI suggestion reviewed'},
+    ],
+    checkpoint:{
+      eng:{name:'Nearest-Neighbor Search Engine (FAISS pattern)',desc:'Vector similarity search with AI-assisted matrix operations. Full audit log of AI contributions. Deployed binary on GitHub with README.'},
+      gen:{name:'AI-Assisted Productivity CLI',desc:'Extended task manager with natural language parsing, weekly reports, JSON export. AI-generated subsystems fully audited and documented.'}
+    }
+  },
+  {
+    id:'ph6',num:'06',label:'Career-Ready Proof',
+    title:'Career-Ready — The Proof Layer',
+    meta:'Capstone + Portfolio Review',
+    desc:'Completion is not the proof. Proof is the proof. A GitHub repository with real code. A demo video. A LinkedIn post that shows you know what you built and why. The engineers who skip this phase have no evidence. You do.',
+    modules:[],
+    careers:['Embedded Systems Engineer','Firmware Engineer','Robotics Engineer','IoT Developer','Control Systems Engineer','Test & Validation Engineer'],
+    proofOfWork:[
+      {type:'github',label:'Portfolio repo with all 5 phase projects'},
+      {type:'video',label:'5-minute demo video of capstone project'},
+      {type:'linkedin',label:'LinkedIn post: C++ course completion + what you built'},
+      {type:'writeup',label:'Personal README: what this course taught you'},
+      {type:'diagram',label:'Architecture diagram of your capstone system'},
+    ],
+    checkpoint:{
+      eng:{name:'Complete Sensor Data Logger — Production Grade',desc:'All subsystems integrated. Clean build. Zero warnings. Exception safety. Documented API. GitHub Actions CI badge.'},
+      gen:{name:'Complete CLI Task Manager — Production Grade',desc:'All features integrated. JSON persistence. Help system. CI/CD. Full test coverage. LinkedIn-ready demo.'}
+    }
+  }
+];
+
+const COURSE = [
+  {id:'m1',num:'01',title:'Intro & Setup',sub:'5 lessons · Hello World to Build Pipeline',phase:'ph1',
+    lessons:[
+      {id:'l1',title:'What is C++ and Why Should You Care?',time:'8 min'},
+      {id:'l2',title:'Setting Up Your Development Environment',time:'10 min'},
+      {id:'l3',title:'Your First C++ Program — Hello, World',time:'8 min'},
+      {id:'l4',title:'How C++ Compiles — The Build Pipeline',time:'9 min'},
+      {id:'l5',title:'Comments, Code Style & Reading Errors',time:'7 min'},
+    ]},
+  {id:'m2',num:'02',title:'Variables, Types & Operators',sub:'5 lessons · Memory to User Input',phase:'ph1',
+    lessons:[
+      {id:'l1',title:'Variables and Memory — What Really Happens',time:'10 min'},
+      {id:'l2',title:'Data Types In Depth — Sizes, Ranges & AI Precision',time:'10 min'},
+      {id:'l3',title:'Arithmetic Operators & the Dot Product',time:'8 min'},
+      {id:'l4',title:'User Input with cin',time:'8 min'},
+      {id:'l5',title:'Constants, Type Casting & auto',time:'9 min'},
+    ]},
+  {id:'m3',num:'03',title:'Control Flow',sub:'5 lessons · Decisions & Loops',phase:'ph2',
+    lessons:[
+      {id:'l1',title:'if/else — Branching Logic & ReLU',time:'9 min'},
+      {id:'l2',title:'switch/case — Clean Multi-Branch Decisions',time:'8 min'},
+      {id:'l3',title:'for Loops — Counted Iteration & Training Loops',time:'10 min'},
+      {id:'l4',title:'while and do-while — Condition-Based Loops',time:'9 min'},
+      {id:'l5',title:'Nested Control Flow & break/continue',time:'10 min'},
+    ]},
+  {id:'m4',num:'04',title:'Functions & Scope',sub:'5 lessons · Reusability & Structure',phase:'ph2',
+    lessons:[
+      {id:'l1',title:'Function Declaration, Definition & Neural Forward Pass',time:'9 min'},
+      {id:'l2',title:'Parameters, Arguments & Pass by Value',time:'10 min'},
+      {id:'l3',title:'Return Values & the void Type',time:'8 min'},
+      {id:'l4',title:'Function Overloading & Default Arguments',time:'9 min'},
+      {id:'l5',title:'Scope, Lifetime & Recursion (Backprop)',time:'10 min'},
+    ]},
+  {id:'m5',num:'05',title:'Arrays, Pointers & Memory',sub:'5 lessons · The Heart of C++',phase:'ph3',
+    lessons:[
+      {id:'l1',title:'Arrays — Sequential Data & Tensor Structure',time:'10 min'},
+      {id:'l2',title:'Pointers — What They Are and Why They Exist',time:'11 min'},
+      {id:'l3',title:'Pointer Arithmetic & Array Traversal',time:'10 min'},
+      {id:'l4',title:'References & Pass by Reference',time:'9 min'},
+      {id:'l5',title:'Dynamic Memory — new, delete & Smart Pointers',time:'10 min'},
+    ]},
+  {id:'m6',num:'06',title:'Object-Oriented Programming',sub:'5 lessons · Classes to Polymorphism',phase:'ph4',
+    lessons:[
+      {id:'l1',title:'Classes & Objects — Sensor Class & LibTorch Pattern',time:'10 min'},
+      {id:'l2',title:'Constructors, Destructors & RAII',time:'10 min'},
+      {id:'l3',title:'Encapsulation — Access Modifiers & Interface Design',time:'9 min'},
+      {id:'l4',title:'Inheritance — Layer Hierarchy in AI Frameworks',time:'10 min'},
+      {id:'l5',title:'Polymorphism & Virtual Functions',time:'11 min'},
+    ]},
+  {id:'m7',num:'07',title:'File I/O & Error Handling',sub:'5 lessons · File Streams to Capstone',phase:'ph4',
+    lessons:[
+      {id:'l1',title:'Reading & Writing Files — Loading CSV Datasets',time:'10 min'},
+      {id:'l2',title:'Parsing Structured Data — JSON & Config Files',time:'9 min'},
+      {id:'l3',title:'Exception Handling — try, catch, throw',time:'10 min'},
+      {id:'l4',title:'Custom Exceptions & Error Hierarchies',time:'9 min'},
+      {id:'l5',title:'Capstone Project — Ship Your System',time:'16 min'},
+    ]},
+  {id:'m8',num:'08',title:'Vibe Coding C++ Like a Pro',sub:'5 lessons · AI-Assisted Development',phase:'ph5',
+    lessons:[
+      {id:'l1',title:'Your AI Toolkit — Cursor, Copilot & Claude',time:'10 min'},
+      {id:'l2',title:'Writing Effective C++ Prompts',time:'10 min'},
+      {id:'l3',title:'Auditing & Debugging AI-Generated C++',time:'11 min'},
+      {id:'l4',title:'Refactoring & Extending AI Output',time:'9 min'},
+      {id:'l5',title:'Vibe Coding Capstone — AI-Assisted Mini System',time:'12 min'},
+    ]},
+];
+
+/* ============================================================
+   STATE
+============================================================ */
+const KEY = 'alix_cpp_done_v2';
+let completed = JSON.parse(localStorage.getItem(KEY)||'{}');
+let currentMod = null, currentLsn = null;
+
+/* ============================================================
+   THEME
+============================================================ */
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  localStorage.setItem('alix_theme',t);
+  document.getElementById('dark-btn').classList.toggle('active',t==='dark');
+  document.getElementById('light-btn').classList.toggle('active',t==='light');
+}
+(function(){setTheme(localStorage.getItem('alix_theme')||'dark');})();
+
+/* ============================================================
+   SIDEBAR
+============================================================ */
+function buildSidebar(){
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML='';
+  PHASES.forEach(ph=>{
+    if(!ph.modules.length) return;
+    const phDiv = document.createElement('div');
+    phDiv.className='sidebar-phase';
+    phDiv.id=`sbph-${ph.id}`;
+    const phHeader = document.createElement('div');
+    phHeader.className='sidebar-phase-header';
+    phHeader.innerHTML=`<span class="phase-badge">${ph.num}</span><span class="sidebar-phase-name">${ph.label} — ${ph.title.split('—')[0].trim()}</span><span class="sidebar-phase-chevron">›</span>`;
+    phHeader.onclick=()=>{
+      phHeader.classList.toggle('open');
+      modContainer.classList.toggle('open');
+      phHeader.querySelector('.sidebar-phase-chevron').style.transform=
+        phHeader.classList.contains('open')?'rotate(90deg)':'';
+    };
+    const modContainer = document.createElement('div');
+    modContainer.className='sidebar-module';
+    modContainer.id=`sbmodcon-${ph.id}`;
+    ph.modules.forEach(mid=>{
+      const mod = COURSE.find(m=>m.id===mid);
+      if(!mod) return;
+      const modLabel = document.createElement('div');
+      modLabel.className='sidebar-module-label';
+      modLabel.textContent=`M${mod.num}: ${mod.title}`;
+      modContainer.appendChild(modLabel);
+      mod.lessons.forEach(lsn=>{
+        const key=`${mod.id}-${lsn.id}`;
+        const done=!!completed[key];
+        const lsnEl=document.createElement('div');
+        lsnEl.className=`sidebar-lesson${done?' done':''}`;
+        lsnEl.id=`sb-${key}`;
+        lsnEl.innerHTML=`<div class="lesson-check">${done?'✓':''}</div>${lsn.title}`;
+        lsnEl.onclick=()=>{goToLesson(mod.id,lsn.id);closeSidebar();};
+        modContainer.appendChild(lsnEl);
+      });
+    });
+    phDiv.appendChild(phHeader);
+    phDiv.appendChild(modContainer);
+    nav.appendChild(phDiv);
+  });
+  updateProgress();
+}
+
+function openSidebarPhase(moduleId){
+  const mod = COURSE.find(m=>m.id===moduleId);
+  if(!mod) return;
+  const phId = mod.phase;
+  const phHeader = document.querySelector(`#sbph-${phId} .sidebar-phase-header`);
+  const modCon = document.getElementById(`sbmodcon-${phId}`);
+  if(phHeader&&modCon&&!phHeader.classList.contains('open')){
+    phHeader.classList.add('open');
+    modCon.classList.add('open');
+    phHeader.querySelector('.sidebar-phase-chevron').style.transform='rotate(90deg)';
+  }
+}
+
+function setActiveSidebarLesson(mid,lid){
+  document.querySelectorAll('.sidebar-lesson').forEach(e=>e.classList.remove('active'));
+  const el=document.getElementById(`sb-${mid}-${lid}`);
+  if(el){el.classList.add('active');el.scrollIntoView({block:'nearest',behavior:'smooth'});}
+}
+
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  const ov=document.getElementById('sidebar-overlay');
+  const isMobile=window.innerWidth<900;
+  if(isMobile){
+    sb.classList.toggle('mobile-open');
+    ov.classList.toggle('active');
+  } else {
+    sb.classList.toggle('mobile-hidden');
+    document.querySelector('.main-content').style.marginLeft=
+      sb.classList.contains('mobile-hidden')?'0':`var(--sidebar-w)`;
+  }
+}
+function closeSidebar(){
+  const sb=document.getElementById('sidebar');
+  const ov=document.getElementById('sidebar-overlay');
+  sb.classList.remove('mobile-open');
+  ov.classList.remove('active');
+}
+
+/* Close sidebar on outside tap for desktop toggle too */
+document.addEventListener('click',function(e){
+  const sb=document.getElementById('sidebar');
+  const toggle=document.querySelector('.sidebar-toggle');
+  if(window.innerWidth>=900) return;
+  if(!sb.contains(e.target)&&!toggle.contains(e.target)){
+    closeSidebar();
+  }
+});
+
+/* ============================================================
+   PHASE LADDER
+============================================================ */
+function buildPhaseLadder(){
+  const container=document.getElementById('phase-ladder');
+  container.innerHTML='';
+  PHASES.forEach((ph,pi)=>{
+    const card=document.createElement('div');
+    card.className='phase-card';
+    card.id=`ph-card-${ph.id}`;
+    const proofHtml=ph.proofOfWork.map(p=>`<span class="proof-item ${p.type}">● ${p.label}</span>`).join('');
+    const careersHtml=ph.careers.map(c=>`<span class="career-pill">${c}</span>`).join('');
+    const startMod = ph.modules[0];
+    const startBtn = startMod
+      ? `<button class="phase-start-btn" onclick="goToLesson('${startMod}','l1')">Start Phase ${ph.num} →</button>`
+      : `<button class="phase-start-btn" onclick="showCareers()">View Career Outcomes →</button>`;
+    card.innerHTML=`
+      <div class="phase-card-header" onclick="togglePhase(this)">
+        <div class="phase-number">${ph.num}</div>
+        <div class="phase-info">
+          <div class="phase-label">${ph.label}</div>
+          <div class="phase-title">${ph.title}</div>
+          <div class="phase-meta">${ph.meta}</div>
+        </div>
+        <div class="phase-toggle">+</div>
+      </div>
+      <div class="phase-body" id="ph-body-${ph.id}">
+        <p style="color:var(--text2);font-size:13px;line-height:1.8;margin-bottom:1.5rem;">${ph.desc}</p>
+
+        <div class="phase-grid">
+          <div class="phase-section-card">
+            <div class="phase-section-label gold">Career Outcomes</div>
+            ${ph.careers.map(c=>`<div class="phase-item">${c}</div>`).join('')}
+          </div>
+          <div class="phase-section-card">
+            <div class="phase-section-label green">Proof of Work</div>
+            ${ph.proofOfWork.map(p=>`<div class="phase-item">${p.label}</div>`).join('')}
+          </div>
+          <div class="phase-section-card">
+            <div class="phase-section-label blue">Modules in This Phase</div>
+            ${ph.modules.length?ph.modules.map(mid=>{const m=COURSE.find(c=>c.id===mid);return m?`<div class="phase-item">M${m.num}: ${m.title}</div>`:''}).join(''):'<div class="phase-item">Portfolio review & publication</div>'}
+          </div>
+        </div>
+
+        <div class="checkpoint-card">
+          <div class="checkpoint-header">
+            <span class="checkpoint-icon">⬡</span>
+            <span class="checkpoint-title">Phase ${ph.num} Checkpoint Project</span>
+          </div>
+          <div class="checkpoint-tracks">
+            <div class="checkpoint-track">
+              <div class="ct-label">Engineering Track</div>
+              <div class="ct-name">${ph.checkpoint.eng.name}</div>
+              <div class="ct-desc">${ph.checkpoint.eng.desc}</div>
+            </div>
+            <div class="checkpoint-track">
+              <div class="ct-label">General Track</div>
+              <div class="ct-name">${ph.checkpoint.gen.name}</div>
+              <div class="ct-desc">${ph.checkpoint.gen.desc}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="proof-section">
+          <div class="proof-title">⬡ What You Publish at the End of This Phase</div>
+          <div class="proof-items">${proofHtml}</div>
+        </div>
+
+        ${startBtn}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function togglePhase(header){
+  const bodyId=header.parentElement.id.replace('ph-card-','ph-body-');
+  const body=document.getElementById(bodyId);
+  header.classList.toggle('open');
+  body.classList.toggle('open');
+  header.querySelector('.phase-toggle').textContent=header.classList.contains('open')?'×':'+';
+}
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+function showHome(){
+  document.getElementById('home-view').style.display='block';
+  document.getElementById('lesson-view').classList.remove('active');
+  document.getElementById('careers-view').classList.remove('active');
+  document.getElementById('topbar-title').textContent='C++ Complete Course';
+  updateProgress();window.scrollTo(0,0);
+}
+function showCareers(){
+  document.getElementById('home-view').style.display='none';
+  document.getElementById('lesson-view').classList.remove('active');
+  document.getElementById('careers-view').classList.add('active');
+  document.getElementById('topbar-title').textContent='Career Outcomes';
+  window.scrollTo(0,0);closeSidebar();
+}
+function goToLesson(mid,lid){
+  currentMod=mid;currentLsn=lid;
+  const mod=COURSE.find(m=>m.id===mid);
+  const lsn=mod?mod.lessons.find(l=>l.id===lid):null;
+  document.getElementById('home-view').style.display='none';
+  document.getElementById('lesson-view').classList.add('active');
+  document.getElementById('careers-view').classList.remove('active');
+  document.getElementById('lesson-content').innerHTML=getLessonContent(mid,lid);
+  document.getElementById('topbar-title').textContent=lsn?`M${mod.num} · ${lsn.title}`:'Lesson';
+  openSidebarPhase(mid);
+  setActiveSidebarLesson(mid,lid);
+  restoreDoneButtons();
+  window.scrollTo(0,0);
+  closeSidebar();
+}
+
+/* ============================================================
+   PROGRESS — with animation
+============================================================ */
+function markDone(mid,lid,btn){
+  const key=`${mid}-${lid}`;
+  completed[key]=true;
+  localStorage.setItem(KEY,JSON.stringify(completed));
+  btn.classList.add('done');
+  btn.innerHTML='<span>✓</span> Complete';
+  const sbEl=document.getElementById(`sb-${key}`);
+  if(sbEl){sbEl.classList.add('done');const chk=sbEl.querySelector('.lesson-check');if(chk)chk.innerHTML='✓';}
+  animateProgress();
+  showToast();
+  // auto-advance after a moment
+  setTimeout(()=>{
+    const nextBtn=document.querySelector('.lesson-nav-btn.primary');
+    if(nextBtn&&!nextBtn.disabled)nextBtn.style.animation='none';
+  },500);
+}
+
+function animateProgress(){
+  const total=COURSE.reduce((a,m)=>a+m.lessons.length,0);
+  const done=Object.keys(completed).length;
+  const pct=Math.round((done/total)*100);
+  const tp=document.getElementById('topbar-progress');
+  const sf=document.getElementById('sb-progress-fill');
+  tp.style.width=pct+'%';
+  sf.style.width=pct+'%';
+  sf.classList.add('progress-pulse');
+  setTimeout(()=>sf.classList.remove('progress-pulse'),1500);
+  document.getElementById('sb-progress-text').textContent=`${done} of ${total} complete — ${pct}%`;
+}
+
+function updateProgress(){animateProgress();}
+
+function showToast(){
+  const t=document.createElement('div');
+  t.className='completion-toast';
+  t.textContent='✓ Lesson complete — keep going.';
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2800);
+}
+
+function restoreDoneButtons(){
+  Object.keys(completed).forEach(key=>{
+    const btn=document.getElementById(`done-${key}`);
+    if(btn){btn.classList.add('done');btn.innerHTML='<span>✓</span> Complete';}
+  });
+}
+
+/* ============================================================
+   COPY CODE
+============================================================ */
+function copyCode(btn){
+  const pre=btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(()=>{
+    btn.textContent='copied!';btn.style.color='var(--gold)';
+    setTimeout(()=>{btn.textContent='copy';btn.style.color='';},1800);
+  });
+}
+
+/* ============================================================
+   LESSON CONTENT
+============================================================ */
+function lessonShell(mid,lid,modTitle,lsnTitle,time,prevBtn,nextBtn,content){
+  const key=`${mid}-${lid}`;
+  const mod=COURSE.find(m=>m.id===mid);
+  const modIdx=COURSE.indexOf(mod)+1;
+  const lsnIdx=mod.lessons.findIndex(l=>l.id===lid)+1;
+  const isDone=!!completed[key];
+  return `
+  <div class="lesson-hero">
+    <div class="lesson-hero-grid"></div>
+    <div class="lesson-breadcrumb">Module ${mod.num} <span>/</span> Lesson ${lsnIdx} of ${mod.lessons.length}</div>
+    <div class="lesson-num-label">Lesson ${modIdx}.${lsnIdx}</div>
+    <h1 class="lesson-title">${lsnTitle}</h1>
+    <div class="lesson-meta">
+      <div class="lesson-meta-item"><span class="meta-dot">●</span> ${time}</div>
+      <div class="lesson-meta-item"><span class="meta-dot">●</span> ${modTitle}</div>
+      <div class="lesson-meta-item"><span class="meta-dot">●</span> Free Certificate</div>
+    </div>
+  </div>
+  ${content}
+  <div class="lesson-nav">
+    ${prevBtn}
+    <button class="mark-done-btn${isDone?' done':''}" onclick="markDone('${mid}','${lid}',this)" id="done-${key}">
+      <span>${isDone?'✓':'○'}</span> ${isDone?'Complete':'Mark complete'}
+    </button>
+    ${nextBtn}
+  </div>`;
+}
+
+function navBtns(mid,lid){
+  const mod=COURSE.find(m=>m.id===mid);
+  const lsnIdx=mod.lessons.findIndex(l=>l.id===lid);
+  const modIdx=COURSE.indexOf(mod);
+  let prev='',next='';
+  if(lsnIdx>0){
+    const pl=mod.lessons[lsnIdx-1];
+    prev=`<button class="lesson-nav-btn" onclick="goToLesson('${mid}','${pl.id}')">← Previous</button>`;
+  } else if(modIdx>0){
+    const pm=COURSE[modIdx-1];const pl=pm.lessons[pm.lessons.length-1];
+    prev=`<button class="lesson-nav-btn" onclick="goToLesson('${pm.id}','${pl.id}')">← Prev Module</button>`;
+  } else {
+    prev=`<button class="lesson-nav-btn" disabled>← Previous</button>`;
+  }
+  if(lsnIdx<mod.lessons.length-1){
+    const nl=mod.lessons[lsnIdx+1];
+    next=`<button class="lesson-nav-btn primary" onclick="goToLesson('${mid}','${nl.id}')">Next Lesson →</button>`;
+  } else if(modIdx<COURSE.length-1){
+    const nm=COURSE[modIdx+1];
+    next=`<button class="lesson-nav-btn primary" onclick="goToLesson('${nm.id}','l1')">Next Module →</button>`;
+  } else {
+    next=`<button class="lesson-nav-btn primary" onclick="showHome()">Course Complete ★</button>`;
+  }
+  return {prev,next};
+}
+
+function videoBlock(time,title){
+  return `<div class="video-block"><div class="video-inner"><div class="video-play">▶</div><div><div class="video-tag">Video · ${time}</div><div class="video-title-text">${title}</div></div></div></div>`;
+}
+
+function getLessonContent(mid,lid){
+  const mod=COURSE.find(m=>m.id===mid);
+  const lsn=mod?mod.lessons.find(l=>l.id===lid):null;
+  const {prev,next}=navBtns(mid,lid);
+  const contents={
+'m1-l1':lessonShell(mid,lid,'Intro & Setup','What is C++ and Why Should You Care?','8 min read',prev,next,`
+${videoBlock('~8 min','What is C++ and Why Should You Care? — Lesson 1.1')}
+<div class="lesson-body">
+<div class="ls-label">Concept</div>
+<p>C++ is a <strong>general-purpose programming language</strong> created by Bjarne Stroustrup at Bell Labs in 1979. He extended C with object-oriented features — without sacrificing raw hardware performance. The result is a language that talks directly to the machine while still letting you build large, structured systems.</p>
+<div class="callout callout-fact"><div class="callout-icon">★</div><div class="callout-inner"><div class="callout-header">Fun Fact</div>The Mars Curiosity Rover runs C++. CERN's Large Hadron Collider data pipeline runs C++. Google Chrome is C++. NVIDIA GPU drivers are C++. When performance is non-optional, engineers reach for C++.</div></div>
+<div class="ls-label">Why It Matters</div>
+<p>For engineering students: embedded systems, robotics, control systems, and aerospace software all treat C++ fluency as a minimum requirement. Every automotive OEM, every PLC manufacturer, every real-time system vendor uses C or C++ in their core systems.</p>
+<div class="callout callout-use"><div class="callout-icon">◆</div><div class="callout-inner"><div class="callout-header">Real World Use</div>Unreal Engine, Adobe Photoshop, MySQL, Boeing flight control, NVIDIA drivers, and the inference engines behind ChatGPT and Stable Diffusion at production scale — all written in C++.</div></div>
+<div class="ls-label">Choose Your Project Track</div>
+<div class="checkpoint-card" style="margin-top:.75rem"><div class="checkpoint-header"><span class="checkpoint-icon">⬡</span><span class="checkpoint-title">Choose Your Track — You'll Build This All Course</span></div><div class="checkpoint-tracks"><div class="checkpoint-track"><div class="ct-label">Engineering Track</div><div class="ct-name">Sensor Data Logger</div><div class="ct-desc">Real-time sensor data collection, threshold alerting, CSV logging, and report generation. Directly applicable to embedded systems and IoT roles.</div></div><div class="checkpoint-track"><div class="ct-label">General Track</div><div class="ct-name">CLI Task Manager</div><div class="ct-desc">A fully functional command-line task manager with file persistence, filtering, priority levels, and formatted output.</div></div></div></div>
+<div class="ls-label">Common Mistakes</div>
+<ul class="mistake-list"><li><span class="mistake-icon">✗</span>Treating C++ like "harder Python." They're built for different jobs. Python is a scientist's notebook. C++ is a precision instrument.</li><li><span class="mistake-icon">✗</span>Expecting it to be beginner-friendly in the same way. The curve is real. So is the capability on the other side.</li></ul>
+<div class="callout callout-identity"><div class="callout-icon">⬡</div><div class="callout-inner"><div class="callout-header">Identity Check</div>Engineers who quit at the first hard concept don't write firmware. They write blog posts about learning C++. You are here to build things. That means finishing what you started. The next lesson is waiting.</div></div>
+<div class="ls-label">Challenge</div>
+<div class="callout callout-challenge"><div class="callout-icon">⬡</div><div class="callout-inner"><div class="callout-header">Your Challenge</div>Before Lesson 1.2: write down three specific systems you want to build with C++. Not "embedded stuff." Specific: "a temperature controller for a greenhouse," "a motor driver for my rover project," "the firmware for a custom MIDI controller." These are the reasons that pull you through when the concepts get dense.</div></div>
+</div>`),
+
+'m1-l2':lessonShell(mid,lid,'Intro & Setup','Setting Up Your Development Environment','10 min read',prev,next,`
+${videoBlock('~10 min','Setting Up GCC, VS Code & Running Your First Binary — Lesson 1.2')}
+<div class="lesson-body">
+<div class="ls-label">Concept</div>
+<p>Before you write C++, you need a <strong>compiler</strong> — a program that translates your source code into machine code the CPU executes. We use <strong>GCC</strong> (GNU Compiler Collection), specifically the <code>g++</code> command. You also need an editor: <strong>VS Code</strong> with the Microsoft C/C++ extension.</p>
+<div class="callout callout-tip"><div class="callout-icon">💡</div><div class="callout-inner"><div class="callout-header">Setup by OS</div><strong>Windows:</strong> Install WSL2 → Ubuntu → <code>sudo apt install g++ build-essential</code><br><strong>Linux (Ubuntu/Debian):</strong> <code>sudo apt install g++ build-essential</code><br><strong>macOS:</strong> <code>xcode-select --install</code></div></div>
+<div class="ls-label">Code Example</div>
+<div class="code-block"><div class="code-header"><span class="code-lang-tag">BASH</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(this)">copy</button></div></div><pre><span class="cm"># Verify compiler is installed</span>
+g++ --version
+<span class="cm"># Output: g++ (Ubuntu 11.3.0) 11.3.0</span>
+
+<span class="cm"># Compile with professional flags — use these every time</span>
+g++ -Wall -Wextra -std=c++17 hello.cpp -o hello
+
+<span class="cm"># Run the binary</span>
+./hello</pre></div>
+<div class="ls-label">Why the Flags Matter</div>
+<p><strong>-Wall</strong> enables all common warnings. <strong>-Wextra</strong> enables additional checks. <strong>-std=c++17</strong> uses the 2017 standard, which we use throughout this course. Compile with these flags from day one. A warning today is a production bug tomorrow.</p>
+<div class="callout callout-fact"><div class="callout-icon">★</div><div class="callout-inner"><div class="callout-header">Fun Fact</div>GCC has been continuously developed since 1987. It compiles the Linux kernel. Billions of devices run code compiled by GCC.</div></div>
+<div class="ls-label">Common Mistakes</div>
+<ul class="mistake-list"><li><span class="mistake-icon">✗</span>Running <code>./hello.cpp</code> instead of <code>./hello</code>. The source file is not the executable. The -o flag names the output.</li><li><span class="mistake-icon">✗</span>Skipping the compiler flags. Zero-warning code with -Wall -Wextra is the professional standard, not an optional upgrade.</li></ul>
+<div class="callout callout-challenge"><div class="callout-icon">⬡</div><div class="callout-inner"><div class="callout-header">Challenge</div>Set up your environment completely. Create <code>setup_test.cpp</code>, write a <code>cout</code> statement printing your name and university, compile with <code>-Wall -Wextra -std=c++17</code>, and run it. Zero warnings. Screenshot the terminal output — this is your first proof of work.</div></div>
+</div>`),
+
+'m1-l3':lessonShell(mid,lid,'Intro & Setup','Your First C++ Program — Hello, World','8 min read',prev,next,`
+${videoBlock('~8 min','Anatomy of a C++ Program — Every Symbol Explained — Lesson 1.3')}
+<div class="lesson-body">
+<div class="ls-label">Concept</div>
+<p>Every C++ program starts with <code>main()</code> — the entry point where execution begins. Understanding every line of Hello World prevents confusion in every module that follows.</p>
+<div class="ls-label">Code Example</div>
+<div class="code-block"><div class="code-header"><span class="code-lang-tag">C++</span><div class="code-actions"><span class="code-file">hello.cpp</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div></div><pre><span class="cm">// Lesson 1.3 — Every symbol explained below</span>
+<span class="kw">#include</span> <span class="st">&lt;iostream&gt;</span>   <span class="cm">// [1] Copy iostream header into this file</span>
+
+<span class="kw">int</span> <span class="fn">main</span>() {           <span class="cm">// [2] Entry point — OS starts here</span>
+    <span class="nm">std</span>::<span class="fn">cout</span>           <span class="cm">// [3] Standard output stream</span>
+        <span class="op">&lt;&lt;</span> <span class="st">"Hello, Engineer."</span>  <span class="cm">// [4] Stream insertion operator</span>
+        <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;           <span class="cm">// [5] Newline (faster than endl)</span>
+    <span class="kw">return</span> <span class="nm">0</span>;           <span class="cm">// [6] Signal success to the OS</span>
+}</pre></div>
+<div class="output-block"><div class="output-header">Terminal Output</div><pre>Hello, Engineer.</pre></div>
+<div class="ls-label">Line by Line</div>
+<p><strong>[1]</strong> — <code>#include &lt;iostream&gt;</code> tells the preprocessor to paste the iostream header into your file. Without it, <code>cout</code> doesn't exist.</p>
+<p><strong>[2]</strong> — <code>int main()</code> is the function the OS calls first. The <code>int</code> return type signals success or failure to the OS.</p>
+<p><strong>[3–4]</strong> — <code>std::cout &lt;&lt;</code> sends data to the output stream. <code>std</code> is a namespace — a folder of related names. <code>cout</code> is character output.</p>
+<p><strong>[5]</strong> — <code>"\n"</code> is a newline character. Faster than <code>std::endl</code> because it doesn't flush the buffer.</p>
+<p><strong>[6]</strong> — <code>return 0</code> tells the OS the program ran successfully. Non-zero means error.</p>
+<div class="callout callout-warn"><div class="callout-icon">⚠</div><div class="callout-inner"><div class="callout-header">Warning — Case Sensitivity</div>C++ is completely case-sensitive. <code>Main</code> ≠ <code>main</code>. <code>Cout</code> will not compile. Capitalisation matters everywhere, always.</div></div>
+<div class="callout callout-fact"><div class="callout-icon">★</div><div class="callout-inner"><div class="callout-header">Fun Fact</div>This 6-line program compiles to ~16,000 bytes. That's the C++ standard library being linked in — the infrastructure every C++ program sits on.</div></div>
+<div class="callout callout-challenge"><div class="callout-icon">⬡</div><div class="callout-inner"><div class="callout-header">Challenge</div>Modify the program to print your name, university, and engineering discipline on three lines. Write it twice: once with three separate <code>cout</code> statements, once with a single chained statement. Both must produce identical output with zero warnings.</div></div>
+</div>`),
+
+'m1-l4':lessonShell(mid,lid,'Intro & Setup','How C++ Compiles — The Build Pipeline','9 min read',prev,next,`
+${videoBlock('~9 min','Preprocessing, Compilation, Assembly, Linking — Lesson 1.4')}
+<div class="lesson-body">
+<div class="ls-label">Concept</div>
+<p>When you run <code>g++ hello.cpp -o hello</code>, four programs run in sequence. Understanding them means understanding every error message you'll ever see.</p>
+<div class="callout callout-use"><div class="callout-icon">◆</div><div class="callout-inner"><div class="callout-header">The Four Stages</div><strong>1. Preprocessing</strong> — handles all <code>#</code> directives. Replaces <code>#include</code> with the actual file content.<br><strong>2. Compilation</strong> — translates C++ into assembly (CPU-specific instructions).<br><strong>3. Assembly</strong> — converts assembly into binary object files (.o).<br><strong>4. Linking</strong> — combines your object file with library object files into the final executable.</div></div>
+<div class="ls-label">Code Example — Observe Each Stage</div>
+<div class="code-block"><div class="code-header"><span class="code-lang-tag">BASH</span><div class="code-actions"><button class="copy-btn" onclick="copyCode(this)">copy</button></div></div><pre><span class="cm"># Stage 1: Preprocessing only</span>
+g++ -E hello.cpp -o hello.i    <span class="cm"># Open this — thousands of lines</span>
+
+<span class="cm"># Stage 2: Compilation to assembly</span>
+g++ -S hello.cpp -o hello.s    <span class="cm"># Open this — assembly code</span>
+
+<span class="cm"># Stage 3: Assembly to object file</span>
+g++ -c hello.cpp -o hello.o    <span class="cm"># Binary — not yet executable</span>
+
+<span class="cm"># Stage 4: Full pipeline</span>
+g++ -Wall -Wextra -std=c++17 hello.cpp -o hello</pre></div>
+<div class="callout callout-fact"><div class="callout-icon">★</div><div class="callout-inner"><div class="callout-header">Fun Fact</div>Large C++ projects use build systems — CMake, Ninja, Bazel — to track which files changed and only recompile what's necessary. A full Chrome build from scratch takes over an hour on fast hardware. The Linux kernel uses Kbuild.</div></div>
+<div class="ls-label">Common Mistakes</div>
+<ul class="mistake-list"><li><span class="mistake-icon">✗</span>Ignoring warnings. A warning is the compiler saying something looks suspicious. Treat them as errors. Fix them all.</li><li><span class="mistake-icon">✗</span>Confusing compiler errors with linker errors. "Expected ';'" is a compiler error — fix your source. "Undefined reference to" is a linker error — you forgot to compile and link a required file.</li></ul>
+<div class="callout callout-challenge"><div class="callout-icon">⬡</div><div class="callout-inner"><div class="callout-header">Challenge</div>Run hello.cpp through each stage manually. Open hello.i and count how many lines the preprocessor produced from your 6-line file. Open hello.s and read at least 5 lines of assembly — you don't need to understand it, but you need to see what your code becomes.</div></div>
+</div>`),
+
+'m1-l5':lessonShell(mid,lid,'Intro & Setup','Comments, Code Style & Reading Errors','7 min read',prev,next,`
+${videoBlock('~7 min','Readable Code and Systematic Error Reading — Lesson 1.5')}
+<div class="lesson-body">
+<div class="ls-label">Concept</div>
+<p>Two habits built now will save you more time than almost any technical knowledge. <strong>Comment why, not what.</strong> <strong>Read error messages from the top down, one at a time.</strong></p>
+<div class="ls-label">Code Example</div>
+<div class="code-block"><div class="code-header"><span class="code-lang-tag">C++</span><div class="code-actions"><span class="code-file">comments.cpp</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div></div><pre><span class="cm">// Single-line: use for brief context on a line</span>
+<span class="cm">// NOT: "increment i" — YES: "skip the CSV header row"</span>
+
+<span class="cm">/*
+   Multi-line: use for file-level or function documentation.
+   Also useful for temporarily disabling blocks of code.
+*/</span>
+
+<span class="kw">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="cm">// Using "\n" instead of endl: faster (no buffer flush)</span>
+    <span class="nm">std</span>::<span class="fn">cout</span> <span class="op">&lt;&lt;</span> <span class="st">"Alix C++ · Module 1 Complete\n"</span>;
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre></div>
+<div class="callout callout-use"><div class="callout-icon">◆</div><div class="callout-inner"><div class="callout-header">Reading Compiler Errors — The System</div>GCC format: <code>filename:LINE:COLUMN: error: DESCRIPTION</code><br><br><strong>Rule 1:</strong> Fix the <em>first</em> error only. One mistake cascades into 10 false errors below it.<br><strong>Rule 2:</strong> The line number is where the compiler got confused. The bug is often one line above.<br><strong>Rule 3:</strong> "Expected ';' before" = you forgot a semicolon on the previous line.<br><strong>Rule 4:</strong> "Undeclared identifier" = you used a name before declaring it, or forgot an include.</div></div>
+<div class="callout callout-fact"><div class="callout-icon">★</div><div class="callout-inner"><div class="callout-header">Fun Fact</div>Bjarne Stroustrup: "There are only two kinds of languages: the ones people complain about and the ones nobody uses." C++ complaints are the price of power.</div></div>
+<div class="ls-label">Common Mistakes</div>
+<ul class="mistake-list"><li><span class="mistake-icon">✗</span>Writing comments that restate what the code does. <code>// increment i</code> adds nothing. <code>// index past the delimiter byte</code> adds context.</li><li><span class="mistake-icon">✗</span>Fixing the last error in a list first. Always start from the top.</li></ul>
+<div class="checkpoint-card" style="margin-top:1.5rem"><div class="checkpoint-header"><span class="checkpoint-icon">⬡</span><span class="checkpoint-title">Module 1 · Phase 1 Checkpoint</span></div><div class="checkpoint-tracks"><div class="checkpoint-track"><div class="ct-label">Engineering Track</div><div class="ct-name">System Info Reporter</div><div class="ct-desc">A formatted console program printing a "system report" — name, institution, date, and a description of the sensor logger you'll build over this course. Zero warnings. GitHub commit.</div></div><div class="checkpoint-track"><div class="ct-label">General Track</div><div class="ct-name">CLI Welcome Screen</div><div class="ct-desc">A styled terminal welcome screen for your Task Manager — title, version, planned features. Compile with -Wall -Wextra. Zero warnings. GitHub commit.</div></div></div></div>
+<div class="callout callout-identity" style="margin-top:1.5rem"><div class="callout-icon">⬡</div><div class="callout-inner"><div class="callout-header">You finished Module 1. That's not the finish line.</div>Engineers who stop at Module 1 certificates don't build embedded systems. They have certificates. You're here to build things. Module 2 starts now.</div></div>
+</div>`)
+  };
+
+  const key=`${mid}-${lid}`;
+  if(contents[key]) return contents[key];
+
+  // Generic lesson for modules 2-8
+  const mod2=COURSE.find(m=>m.id===mid);
+  const lsn2=mod2?mod2.lessons.find(l=>l.id===lid):null;
+  const modIdx2=COURSE.indexOf(mod2)+1;
+  const lsnIdx2=mod2?mod2.lessons.findIndex(l=>l.id===lid)+1:0;
+  const body=`
+${videoBlock(lsn2?lsn2.time:'~10 min',lsn2?`${lsn2.title} — Lesson ${modIdx2}.${lsnIdx2}`:'')}
+<div class="lesson-body">
+<div class="ls-label">Concept</div>
+<p>This lesson is part of the complete Alix C++ Course production. Full content — concept explanation, annotated code examples, output blocks, common mistakes, and project checkpoints — ships with the video for this lesson.</p>
+<div class="callout callout-tip"><div class="callout-icon">💡</div><div class="callout-inner"><div class="callout-header">Coming Up</div>Lesson <strong>${modIdx2}.${lsnIdx2}: ${lsn2?lsn2.title:''}</strong><br>Part of Module ${mod2?mod2.num:''}: ${mod2?mod2.title:''}<br><br>The full written content for every lesson in Modules 2–8 is being produced alongside the video scripts. Follow Alix on LinkedIn for release updates.</div></div>
+<div class="callout callout-identity"><div class="callout-icon">⬡</div><div class="callout-inner"><div class="callout-header">Engineers who skip ahead come back.</div>If you jumped to this lesson before completing the previous ones, go back. The engineers who skip steps don't build the systems they want to build. The ones who go in order do.</div></div>
+</div>`;
+  return lessonShell(mid,lid,mod2?mod2.title:'',lsn2?lsn2.title:'Coming Soon',lsn2?lsn2.time:'~10 min',prev,next,body);
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+buildSidebar();
+buildPhaseLadder();
+updateProgress();
+
+/* Handle sidebar on resize */
+window.addEventListener('resize',()=>{
+  if(window.innerWidth>=900){
+    document.getElementById('sidebar').classList.remove('mobile-open');
+    document.getElementById('sidebar-overlay').classList.remove('active');
+    document.getElementById('sidebar').classList.remove('mobile-hidden');
+    document.querySelector('.main-content').style.marginLeft=`var(--sidebar-w)`;
+  }
+});
+
+/* Initial mobile state */
+if(window.innerWidth<900){
+  document.getElementById('sidebar').classList.add('mobile-hidden');
+  document.querySelector('.main-content').style.marginLeft='0';
+}
+</script>
+</body>
+</html>
